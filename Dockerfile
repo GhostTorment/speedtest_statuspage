@@ -28,7 +28,7 @@ RUN useradd -m -s /bin/bash speedtest
 WORKDIR /app
 
 # Copy built binary from builder stage
-COPY --from=builder /app/target/release/speedtest-statuspage /usr/local/bin/speedtest-statuspage
+COPY --from=builder /app/target/release/speedtest_statuspage /usr/local/bin/speedtest-statuspage
 
 # Copy optional .env and config
 COPY .env /etc/speedtest-statuspage/.env
