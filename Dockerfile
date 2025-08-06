@@ -18,7 +18,7 @@ FROM debian:bookworm-slim
 
 # Install runtime dependencies: Python3 and speedtest-cli
 RUN apt-get update && \
-    apt-get install -y python3-speedtest-cli ca-certificates curl && \
+    apt-get install -y speedtest-cli ca-certificates curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add non-root user
