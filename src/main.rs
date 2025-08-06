@@ -1,29 +1,13 @@
-//! # speedtest-statuspage
-//!
-//! A utility application to serve speedtest results over an HTTP endpoint.
-//!
-//! ## Disclaimer
-//! This project is not affiliated with, endorsed by, or sponsored by Ookla. (Ookla®).
-//! All trademarks and copyrights belong to their respective owners.
-
-// Copyright (c) 2025 Jak Bracegirdle
-//
-// This file is part of the speedtest_statuspage crate.
-//
-// Licensed under the Apache License, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
-// or the MIT license <http://opensource.org/licenses/MIT>, at your option.
-// This file may not be copied, modified, or distributed except according to those terms.
-
 mod models;
 
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use dotenvy;
+use once_cell::sync::Lazy;
 use std::env;
 use std::process::Stdio;
-use tokio::process::Command;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
-use once_cell::sync::Lazy;
+use tokio::{process::Command, time};
 
 use models::{SpeedTestResponse, SpeedTestResult};
 
@@ -31,20 +15,23 @@ static LAST_RESULT: Lazy<Mutex<Option<(SpeedTestResult, Instant)>>> = Lazy::new(
 
 #[get("/speed")]
 async fn speedtest() -> impl Responder {
-    let now = Instant::now();
-    let min_age = min_frequency_duration();
-
-    // Lock and check cache
-    {
-        let cache = LAST_RESULT.lock().unwrap();
-        if let Some((cached_result, timestamp)) = &*cache {
-            if now.duration_since(*timestamp) < min_age {
-                return HttpResponse::Ok().json(cached_result);
-            }
-        }
+    let cache = LAST_RESULT.lock().unwrap();
+    if let Some((cached_result, _timestamp)) = &*cache {
+        HttpResponse::Ok().json(cached_result)
+    } else {
+        HttpResponse::ServiceUnavailable().body("Speedtest result not available yet.")
     }
+}
 
-    // Run `speedtest-cli --json`
+fn min_frequency_duration() -> Duration {
+    let minutes = env::var("INTERVAL_MINUTES")
+        .ok()
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(10); // default: 10 minutes
+    Duration::from_secs(minutes * 60)
+}
+
+async fn run_speedtest_and_cache() {
     let output = Command::new("speedtest-cli")
         .arg("--json")
         .stdout(Stdio::piped())
@@ -55,7 +42,6 @@ async fn speedtest() -> impl Responder {
     match output {
         Ok(output) if output.status.success() => {
             let stdout = String::from_utf8_lossy(&output.stdout);
-
             match serde_json::from_str::<SpeedTestResponse>(&stdout) {
                 Ok(data) => {
                     let result = SpeedTestResult {
@@ -72,32 +58,32 @@ async fn speedtest() -> impl Responder {
                         timestamp: data.timestamp,
                     };
 
-                    // Cache the result
                     let mut cache = LAST_RESULT.lock().unwrap();
-                    *cache = Some((result.clone(), now));
-
-                    HttpResponse::Ok().json(result)
+                    *cache = Some((result.clone(), Instant::now()));
+                    println!("Speedtest updated at {}", result.timestamp);
                 }
-                Err(e) => HttpResponse::InternalServerError()
-                    .body(format!("Failed to parse speedtest-cli JSON: {}", e)),
+                Err(e) => eprintln!("Failed to parse speedtest-cli JSON: {}", e),
             }
         }
         Ok(output) => {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            HttpResponse::InternalServerError()
-                .body(format!("speedtest-cli failed: {}", stderr))
+            eprintln!("speedtest-cli failed: {}", stderr);
         }
-        Err(e) => HttpResponse::InternalServerError()
-            .body(format!("Failed to run speedtest-cli: {}", e)),
+        Err(e) => eprintln!("Failed to run speedtest-cli: {}", e),
     }
 }
 
-fn min_frequency_duration() -> Duration {
-    let minutes = env::var("MIN_FREQUENCY_MINUTES")
-        .ok()
-        .and_then(|s| s.parse::<u64>().ok())
-        .unwrap_or(10); // default: 10 minutes
-    Duration::from_secs(minutes * 60)
+async fn spawn_speedtest_scheduler() {
+    let interval = min_frequency_duration();
+
+    // Run one immediately on startup
+    run_speedtest_and_cache().await;
+
+    let mut ticker = time::interval(interval);
+    loop {
+        ticker.tick().await;
+        run_speedtest_and_cache().await;
+    }
 }
 
 #[actix_web::main]
@@ -107,6 +93,9 @@ async fn main() -> std::io::Result<()> {
     let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| "127.0.0.1".to_string());
     let bind_port_str = env::var("BIND_PORT").unwrap_or_else(|_| "8080".to_string());
     let bind_port: u16 = bind_port_str.parse().expect("BIND_PORT must be a valid u16");
+
+    // Spawn the periodic speedtest updater
+    tokio::spawn(spawn_speedtest_scheduler());
 
     println!("Starting server at http://{}:{}/speed", bind_address, bind_port);
 

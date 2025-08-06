@@ -16,13 +16,13 @@ All trademarks and copyrights belong to their respective owners.
 
 ```bash
 cargo build --profile release
-BIND_ADDRESS=<ADDRESS> BIND_PORT=<PORT> MIN_INTERVAL_MINUTES=<MINUTES> target/release/speedtest_statuspage
+BIND_ADDRESS=<ADDRESS> BIND_PORT=<PORT> INTERVAL_MINUTES=<MINUTES> target/release/speedtest_statuspage
 ```
 
 ```dotenv
 BIND_ADDRESS=0.0.0.0 # The address that the server will bind to
 BIND_PORT=8080 # The port that the server will bind to
-MIN_INTERVAL_MINUTES=60 # The interval for which a cache will be returned
+INTERVAL_MINUTES=60 # The interval for which a cache will be returned
 ```
 
 ## Development
