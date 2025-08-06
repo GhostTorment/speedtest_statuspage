@@ -14,8 +14,8 @@ echo "🔧 Installing speedtest-statuspage service..."
 
 # Copy files from package into the root filesystem
 echo "📁 Copying files to system directories..."
-cp -r package/usr/* /usr/
-cp -r package/etc/* /etc/
+cp -r usr/* /usr/
+cp -r etc/* /etc/
 
 # Set correct permissions
 echo "🔐 Setting permissions..."
