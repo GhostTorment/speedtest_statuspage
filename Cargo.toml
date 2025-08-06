@@ -2,6 +2,11 @@
 name = "speedtest_statuspage"
 version = "0.1.0"
 edition = "2024"
+authors = ["Jak Bracegirdle <jak@bracegirdle.io>"]
+description = "A utility application to serve speedtest results over an HTTP endpoint."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/GhostTorment/speedtest_statuspage"
+readme = "README.md"
 
 [dependencies]
 actix-web = "4.10.2"
