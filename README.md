@@ -31,3 +31,11 @@ MIN_INTERVAL_MINUTES=60 # The interval for which a cache will be returned
 cargo build
 cargo test
 ```
+
+## Installation
+
+```bash
+./build-release.sh
+cd package
+sudo install.sh
+```
