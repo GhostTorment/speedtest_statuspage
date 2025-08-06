@@ -35,6 +35,8 @@ cargo test
 ## Installation
 
 ```bash
+git clone https://github.com/GhostTorment/speedtest_statuspage.git
+cd speedtest_statuspage
 ./build-release.sh
 cd package
 sudo install.sh
