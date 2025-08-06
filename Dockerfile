@@ -1,5 +1,5 @@
 # -------- Stage 1: Build the binary --------
-FROM rust:latest-slim AS builder
+FROM rust:latest AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y pkg-config libssl-dev
