@@ -21,11 +21,29 @@ use dotenvy;
 use std::env;
 use std::process::Stdio;
 use tokio::process::Command;
+use std::sync::Mutex;
+use std::time::{Duration, Instant};
+use once_cell::sync::Lazy;
 
 use models::{SpeedTestResponse, SpeedTestResult};
 
+static LAST_RESULT: Lazy<Mutex<Option<(SpeedTestResult, Instant)>>> = Lazy::new(|| Mutex::new(None));
+
 #[get("/speed")]
 async fn speedtest() -> impl Responder {
+    let now = Instant::now();
+    let min_age = min_frequency_duration();
+
+    // Lock and check cache
+    {
+        let cache = LAST_RESULT.lock().unwrap();
+        if let Some((cached_result, timestamp)) = &*cache {
+            if now.duration_since(*timestamp) < min_age {
+                return HttpResponse::Ok().json(cached_result);
+            }
+        }
+    }
+
     // Run `speedtest-cli --json`
     let output = Command::new("speedtest-cli")
         .arg("--json")
@@ -37,10 +55,9 @@ async fn speedtest() -> impl Responder {
     match output {
         Ok(output) if output.status.success() => {
             let stdout = String::from_utf8_lossy(&output.stdout);
-            // Parse JSON into your typed struct
+
             match serde_json::from_str::<SpeedTestResponse>(&stdout) {
                 Ok(data) => {
-                    // Build the enhanced result with Mbps conversions
                     let result = SpeedTestResult {
                         bytes_received: data.bytes_received,
                         bytes_sent: data.bytes_sent,
@@ -54,6 +71,11 @@ async fn speedtest() -> impl Responder {
                         share: data.share,
                         timestamp: data.timestamp,
                     };
+
+                    // Cache the result
+                    let mut cache = LAST_RESULT.lock().unwrap();
+                    *cache = Some((result.clone(), now));
+
                     HttpResponse::Ok().json(result)
                 }
                 Err(e) => HttpResponse::InternalServerError()
@@ -68,6 +90,14 @@ async fn speedtest() -> impl Responder {
         Err(e) => HttpResponse::InternalServerError()
             .body(format!("Failed to run speedtest-cli: {}", e)),
     }
+}
+
+fn min_frequency_duration() -> Duration {
+    let minutes = env::var("MIN_FREQUENCY_MINUTES")
+        .ok()
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(10); // default: 10 minutes
+    Duration::from_secs(minutes * 60)
 }
 
 #[actix_web::main]

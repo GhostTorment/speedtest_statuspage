@@ -16,7 +16,7 @@
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct ClientInfo {
     country: String,
     ip: String,
@@ -30,7 +30,7 @@ pub(crate) struct ClientInfo {
     rating: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct ServerInfo {
     cc: String,
     country: String,
@@ -58,7 +58,7 @@ pub struct SpeedTestResponse {
     pub(crate) upload: f64, // bits per second
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub(crate) struct SpeedTestResult {
     pub(crate) bytes_received: usize,
     pub(crate) bytes_sent: usize,
