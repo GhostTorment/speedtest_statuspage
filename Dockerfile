@@ -14,15 +14,17 @@ COPY . .
 RUN cargo build --release
 
 # -------- Stage 2: Create minimal runtime image --------
-FROM debian:bookworm-slim
+FROM alpine:latest
 
-# Install runtime dependencies: Python3 and speedtest-cli
-RUN apt-get update && \
-    apt-get install -y speedtest-cli ca-certificates curl && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install runtime dependencies including speedtest-cli from community repo
+RUN apk add --no-cache \
+    curl \
+    ca-certificates \
+    speedtest-cli \
+    bash
 
 # Add non-root user
-RUN useradd -m -s /bin/bash speedtest
+RUN adduser -D -s /bin/bash speedtest
 
 # Set working directory
 WORKDIR /app
