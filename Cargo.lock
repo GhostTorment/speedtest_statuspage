@@ -1210,7 +1210,7 @@ dependencies = [
 
 [[package]]
 name = "speedtest_statuspage"
-version = "0.2.2"
+version = "0.2.4"
 dependencies = [
  "actix-web",
  "async-trait",

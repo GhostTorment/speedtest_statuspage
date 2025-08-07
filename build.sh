@@ -62,13 +62,16 @@ if [[ "$PROFILE" == "release" ]]; then
   git commit -am "$COMMIT_MSG"
   git push
 
+  # --- Crates.io publish ---
+  cargo publish
+
   # --- Docker Build ---
   read -rp "Enter your DockerHub username or org (e.g. myuser): " DOCKER_REPO
   IMAGE_NAME="$DOCKER_REPO/speedtest_statuspage"
 
   echo "Building Docker images..."
   docker build -t "$IMAGE_NAME:latest" -f Dockerfile .
-  docker build -t "$IMAGE_NAME:latest-alpine" -f Dockerfile.alpine .
+  docker build -t "$IMAGE_NAME:latest-alpine" -f Dockerfile .
 
   docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:$NEW_VERSION"
   docker tag "$IMAGE_NAME:latest-alpine" "$IMAGE_NAME:$NEW_VERSION-alpine"

@@ -1,6 +1,6 @@
 [package]
 name = "speedtest_statuspage"
-version = "0.2.2"
+version = "0.2.4"
 edition = "2024"
 authors = ["Jak Bracegirdle <jak@bracegirdle.io>"]
 description = "A utility application to serve speedtest results over an HTTP endpoint."
