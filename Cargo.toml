@@ -1,6 +1,6 @@
 [package]
 name = "speedtest_statuspage"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2024"
 authors = ["Jak Bracegirdle <jak@bracegirdle.io>"]
 description = "A utility application to serve speedtest results over an HTTP endpoint."
@@ -17,3 +17,11 @@ dotenvy = "0.15.7"
 once_cell = "1.21.3"
 async-trait = "0.1.88"
 serial_test = "3.2.0"
+futures = "0.3.31"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "cache_and_api"
+harness = false

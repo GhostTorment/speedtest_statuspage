@@ -42,36 +42,36 @@ use serde::{Deserialize, Serialize};
 /// assert_eq!(client.ip, "192.0.2.1");
 /// ```
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub(crate) struct ClientInfo {
+pub struct ClientInfo {
     /// Client's country code or name.
-    pub(crate) country: String,
+    pub country: String,
 
     /// Client's IP address.
-    pub(crate) ip: String,
+    pub ip: String,
 
     /// Client's Internet Service Provider.
-    pub(crate) isp: String,
+    pub isp: String,
 
     /// ISP download average speed as a string.
-    pub(crate) ispdlavg: String,
+    pub ispdlavg: String,
 
     /// ISP rating as a string.
-    pub(crate) isprating: String,
+    pub isprating: String,
 
     /// ISP upload average speed as a string.
-    pub(crate) ispulavg: String,
+    pub ispulavg: String,
 
     /// Client's latitude coordinate as a string.
-    pub(crate) lat: String,
+    pub lat: String,
 
     /// Whether the client is logged in (string "true"/"false").
-    pub(crate) loggedin: String,
+    pub loggedin: String,
 
     /// Client's longitude coordinate as a string.
-    pub(crate) lon: String,
+    pub lon: String,
 
     /// Client rating as a string.
-    pub(crate) rating: String,
+    pub rating: String,
 }
 
 /// Information about the server used in the speedtest.
@@ -101,39 +101,39 @@ pub(crate) struct ClientInfo {
 /// assert_eq!(server.latency, 10.5);
 /// ```
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub(crate) struct ServerInfo {
+pub struct ServerInfo {
     /// Server country code.
-    pub(crate) cc: String,
+    pub cc: String,
 
     /// Server country name.
-    pub(crate) country: String,
+    pub country: String,
 
     /// Distance from client to server in kilometers.
-    pub(crate) d: f64,
+    pub d: f64,
 
     /// Server hostname.
-    pub(crate) host: String,
+    pub host: String,
 
     /// Server identifier.
-    pub(crate) id: String,
+    pub id: String,
 
     /// Server latitude.
-    pub(crate) lat: String,
+    pub lat: String,
 
     /// Server latency in milliseconds.
-    pub(crate) latency: f64,
+    pub latency: f64,
 
     /// Server longitude.
-    pub(crate) lon: String,
+    pub lon: String,
 
     /// Server name.
-    pub(crate) name: String,
+    pub name: String,
 
     /// Server sponsor or operator.
-    pub(crate) sponsor: String,
+    pub sponsor: String,
 
     /// URL of the server.
-    pub(crate) url: String,
+    pub url: String,
 }
 
 /// The raw response from `speedtest-cli` JSON output.
@@ -198,31 +198,31 @@ pub(crate) struct ServerInfo {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SpeedTestResponse {
     /// Number of bytes received during the test.
-    pub(crate) bytes_received: usize,
+    pub bytes_received: usize,
 
     /// Number of bytes sent during the test.
-    pub(crate) bytes_sent: usize,
+    pub bytes_sent: usize,
 
     /// Client information.
-    pub(crate) client: ClientInfo,
+    pub client: ClientInfo,
 
     /// Download speed in bits per second.
-    pub(crate) download: f64,
+    pub download: f64,
 
     /// Ping time in milliseconds.
-    pub(crate) ping: f64,
+    pub ping: f64,
 
     /// Server information.
-    pub(crate) server: ServerInfo,
+    pub server: ServerInfo,
 
     /// Optional share data returned by the speedtest service.
-    pub(crate) share: Option<serde_json::Value>,
+    pub share: Option<serde_json::Value>,
 
     /// ISO8601 timestamp of the test.
-    pub(crate) timestamp: String,
+    pub timestamp: String,
 
     /// Upload speed in bits per second.
-    pub(crate) upload: f64,
+    pub upload: f64,
 }
 
 /// A processed and cached speedtest result ready for API serving.
@@ -278,37 +278,37 @@ pub struct SpeedTestResponse {
 /// assert_eq!(result.client.isp, "Example ISP");
 /// ```
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub(crate) struct SpeedTestResult {
+pub struct SpeedTestResult {
     /// Number of bytes received.
-    pub(crate) bytes_received: usize,
+    pub bytes_received: usize,
 
     /// Number of bytes sent.
-    pub(crate) bytes_sent: usize,
+    pub bytes_sent: usize,
 
     /// Download speed in bits per second.
-    pub(crate) download_bps: f64,
+    pub download_bps: f64,
 
     /// Upload speed in bits per second.
-    pub(crate) upload_bps: f64,
+    pub upload_bps: f64,
 
     /// Download speed in megabits per second.
-    pub(crate) download_mbps: f64,
+    pub download_mbps: f64,
 
     /// Upload speed in megabits per second.
-    pub(crate) upload_mbps: f64,
+    pub upload_mbps: f64,
 
     /// Ping time in milliseconds.
-    pub(crate) ping_ms: f64,
+    pub ping_ms: f64,
 
     /// Client information.
-    pub(crate) client: ClientInfo,
+    pub client: ClientInfo,
 
     /// Server information.
-    pub(crate) server: ServerInfo,
+    pub server: ServerInfo,
 
     /// Optional share data from the speedtest service.
-    pub(crate) share: Option<serde_json::Value>,
+    pub share: Option<serde_json::Value>,
 
     /// Timestamp of the speedtest.
-    pub(crate) timestamp: String,
+    pub timestamp: String,
 }
